@@ -16,7 +16,7 @@ pipeline {
 
         stage('Test') {
             steps {
-                sh 'npm run test'
+                sh 'npm test'
             }
         }
 
@@ -34,7 +34,6 @@ pipeline {
                  script {
                      def containerName = 'dev_rc'
                      def existingContainerId = sh(script: "docker ps -a -q -f name=${containerName}", returnStatus: true)
-  
                      if (existingContainerId.toString().length()>0) {
                          // Xóa container cũ nếu tồn tại
                          sh "docker rm -f ${containerName}"
@@ -44,7 +43,6 @@ pipeline {
                  }
              }
          }
-        }
     }
 
     // post {
