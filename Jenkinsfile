@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Checkout Github') {
             steps {
-               git 'https://github.com/ntquan/nodejs-app-ci-cd'
+                git branch: 'dev', url: 'https://github.com/ntquan/nodejs-app-ci-cd.git'
             }
         }
 
