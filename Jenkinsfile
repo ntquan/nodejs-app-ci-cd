@@ -10,13 +10,13 @@ pipeline {
 
         stage('Build source code (dependencies)') {
             steps {
-                bat 'npm install'
+                sh 'npm install'
             }
         }
 
         stage('Test') {
             steps {
-                bat 'npm test'
+                sh 'npm test'
             }
         }
 
