@@ -40,7 +40,7 @@ pipeline {
                          sh "docker rm -f ${containerName}"
                      }
                      // Tạo container mới
-                     sh 'docker run -itd --name dev_rc -p 3000:3000 ntquan87/nodejs-app-ci-cd:latest'
+                     sh 'docker run -itd --name dev_rc -p 3002:3000 ntquan87/nodejs-app-ci-cd:latest'
                  }
              }
          }
