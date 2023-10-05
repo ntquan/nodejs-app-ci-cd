@@ -35,8 +35,8 @@ pipeline {
         always {
             // Clean up Docker images and containers
             cleanWs()
-            bat 'docker system prune -af'
-            bat 'docker logout'
+            sh 'docker system prune -af'
+            sh 'docker logout'
         }
     }
 }
