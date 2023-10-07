@@ -16,10 +16,12 @@ pipeline {
 
         stage('Test') {
             steps {
-                def result = sh(script: 'npm test', returnStatus: true)
-                if(result!=0) {
-                    currentBuild.result = 'FAILURE'
-                    break
+                script {
+                    def result = sh(script: 'npm test', returnStatus: true)
+                    if(result!=0) {
+                        currentBuild.result = 'FAILURE'
+                        break
+                    }
                 }
             }
         }
