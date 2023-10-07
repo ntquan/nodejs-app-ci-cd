@@ -7,7 +7,7 @@ const expect = chai.expect;
 
 describe('Test App', () => {
     describe('GET /', () => {
-        it('should return "Hello World!" for the / route', (done) => {
+        it('should return "Hello World 13!" for the / route', (done) => {
             chai.request(app)
                 .get('/')
                 .end((err, res) => {
