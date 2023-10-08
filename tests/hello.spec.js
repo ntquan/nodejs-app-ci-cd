@@ -12,7 +12,7 @@ describe('Test App', () => {
                 .get('/')
                 .end((err, res) => {
                     expect(res).to.have.status(200);
-                    expect(res.text).to.equal('<h1>Hello World def2!</h1>');
+                    expect(res.text).to.equal('<h1>Hello World def3!</h1>');
                     done();
                 });
         });
