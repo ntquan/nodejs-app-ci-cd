@@ -1,54 +1,73 @@
+def helmValues = "/var/lib/jenkins/workspace/${JOB_NAME}/app-demo/values.yaml"
+def helmChart = "/var/lib/jenkins/workspace/${JOB_NAME}/app-demo/"
+
 pipeline {
     agent any
 
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'dev', description: 'Git branch to build')
+    }
+
+    environment {
+        REPO_URL = 'https://github.com/ntquan/nodejs-app-ci-cd.git'
+        BRANCH_NAME = "${params.BRANCH_NAME}"
+        IMAGE_NAME = 'ntquan87/nodejs-app-ci-cd'
+    }
+
+
     stages {
-        stage('Checkout Github') {
-            steps {
-                git branch: 'dev', url: 'https://github.com/ntquan/nodejs-app-ci-cd.git'
-            }
-        }
-
-        stage('Build app') {
-            steps {
-                sh 'npm install'
-            }
-        }
-
-        stage('Test') {
+        stage('Print Branch Name') {
             steps {
                 script {
-                    def result = sh(script: 'npm test', returnStatus: true)
-                    if(result!=0) {
-                        currentBuild.result = 'FAILURE'
-                    }
+                    echo "Branch selected: ${BRANCH_NAME}"
+                }
+            }
+        }
+        stage('Checkout') {
+            steps {
+                script {
+                    // Checkout the specified branch
+                    git branch: "${BRANCH_NAME}", url: "${REPO_URL}"
                 }
             }
         }
 
-        stage('Build and Push Docker Image') {
+        stage('Get Latest Commit') {
             steps {
-                    // Authenticate with the Docker registry
-                    withDockerRegistry(credentialsId: 'docker-hub', url: 'https://index.docker.io/v1/') {
-                      sh 'docker build -t ntquan87/nodejs-app-ci-cd:latest .'
-                      sh 'docker push ntquan87/nodejs-app-ci-cd:latest'
-                    }
+                script {
+                    // Get the latest commit hash
+                    LATEST_COMMIT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    echo "Latest Commit Hash: ${LATEST_COMMIT}"
+                }
             }
         }
 
-        stage('Deploy RC') {
+        stage('Build Docker Image') {
             steps {
-                 script {
-                     def containerName = 'dev_rc'
-                     def existingContainerId = sh(script: "docker ps -a -q -f name=${containerName}", returnStatus: true)
-                     if (existingContainerId.toString().length()>0) {
-                         // Xóa container cũ nếu tồn tại
-                         sh "docker rm -f ${containerName}"
-                     }
-                     // Tạo container mới
-                     sh 'docker run -itd --name dev_rc -p 3002:3000 ntquan87/nodejs-app-ci-cd:latest'
-                 }
-             }
-         }
+                script {
+                    // Build the Docker image with the commit hash as a tag
+                    sh "whoami"
+                    sh "docker build -t ${IMAGE_NAME}:${LATEST_COMMIT} ."
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    // Push the image to Docker registry (optional)
+                    sh "docker push ${IMAGE_NAME}:${LATEST_COMMIT}"
+                }
+            }
+        }
+        stage('Apply k8s') {
+            steps {
+                script {
+                    echo "Deploy to k8s"
+                    sh "helm upgrade --install --namespace=test-${LATEST_COMMIT}  --create-namespace jenkins-${LATEST_COMMIT} -f $helmValues $helmChart --set image.repository=${IMAGE_NAME} --set image.tag=${LATEST_COMMIT}"
+                }
+            }
+        }
     }
 
     // post {
