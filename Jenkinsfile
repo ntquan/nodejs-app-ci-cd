@@ -30,7 +30,7 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image with the commit hash as a tag
-                    sh "docker build -t ${IMAGE_NAME}:${LATEST_COMMIT} ."
+                    sh "docker build -t ${IMAGE_NAME}:0.01 ."
                 }
             }
         }
@@ -41,7 +41,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
                         sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
                         // Push the image to Docker registry (optional)
-                        sh "docker push ${IMAGE_NAME}:${LATEST_COMMIT}"
+                        sh "docker push ${IMAGE_NAME}:0.01"
                     }
                 }
             }
