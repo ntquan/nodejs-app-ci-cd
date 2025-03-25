@@ -10,11 +10,18 @@ pipeline {
     }
 
     stages {
+        stage('Print Branch Name') {
+            steps {
+                script {
+                    echo "Branch selected: ${params.BRANCH_NAME}"
+                }
+            }
+        }
         stage('Checkout') {
             steps {
                 script {
                     // Checkout the specified branch
-                    git branch: "${BRANCH_NAME}", url: "${REPO_URL}"
+                    git branch: "${params.BRANCH_NAME}", url: "${REPO_URL}"
                 }
             }
         }
