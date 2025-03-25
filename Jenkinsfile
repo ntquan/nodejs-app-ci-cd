@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         REPO_URL = 'https://github.com/ntquan/nodejs-app-ci-cd.git'
-        BRANCH_NAME = 'deploy_k8s'
+        BRANCH_NAME = ${params.BRANCH_NAME}
         IMAGE_NAME = 'ntquan87/nodejs-app-ci-cd'
     }
 
