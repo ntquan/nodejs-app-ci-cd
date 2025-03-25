@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'BRANCH_NAME', defaultValue: 'dev', description: 'Git branch to build')
+        string(name: 'BRANCH_NAME', defaultValue: 'test_01', description: 'Git branch to build')
     }
     environment {
         REPO_URL = 'https://github.com/ntquan/nodejs-app-ci-cd.git'
