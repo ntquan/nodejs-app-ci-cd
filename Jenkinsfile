@@ -30,7 +30,7 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image with the commit hash as a tag
-                    sh "echo whoami"
+                    sh "whoami"
                     sh "docker build -t ${IMAGE_NAME}:${LATEST_COMMIT} ."
                 }
             }
