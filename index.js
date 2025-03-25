@@ -3,7 +3,11 @@ const app = express()
 const port = 3000
 
 app.get('/', (req, res) => {
-    res.send('<h1>Hello World 11111111111!</h1>')
+    var newData = "<p>PodName: " + process.env.MY_POD_NAME + "</p>";
+    newData += "<p>PodIP: " + process.env.MY_POD_IP + "</p>";
+    newData += "<p>Namespace: " + process.env.MY_POD_NAMESPACE + "</p>";
+    newData += "<p>NodeName: " + process.env.MY_NODE_NAME + "</p>";
+    res.send(newData)
 })
 
 app.get('/about', (req, res) => {

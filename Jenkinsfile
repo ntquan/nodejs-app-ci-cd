@@ -1,26 +1,45 @@
 pipeline {
     agent any
+    environment {
+        REPO_URL = 'https://github.com/ntquan/nodejs-app-ci-cd.git'
+        BRANCH_NAME = 'deploy_k8s'
+        IMAGE_NAME = 'ntquan87/nodejs-app-ci-cd'
+    }
 
     stages {
-        stage('Checkout Github') {
-            steps {
-                git branch: 'dev', url: 'https://github.com/ntquan/nodejs-app-ci-cd.git'
-            }
-        }
-
-        stage('Build app') {
-            steps {
-                sh 'npm install'
-            }
-        }
-
-        stage('Test') {
+        stage('Checkout') {
             steps {
                 script {
-                    def result = sh(script: 'npm test', returnStatus: true)
-                    if(result!=0) {
-                        currentBuild.result = 'FAILURE'
-                    }
+                    // Checkout the specified branch
+                    git branch: "${BRANCH_NAME}", url: "${REPO_URL}"
+                }
+            }
+        }
+
+        stage('Get Latest Commit') {
+            steps {
+                script {
+                    // Get the latest commit hash
+                    LATEST_COMMIT = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+                    echo "Latest Commit Hash: ${LATEST_COMMIT}"
+                }
+            }
+        }
+
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image with the commit hash as a tag
+                    sh "docker build -t ${IMAGE_NAME}:${LATEST_COMMIT} ."
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    // Push the image to Docker registry (optional)
+                    sh "docker push ${IMAGE_NAME}:${LATEST_COMMIT}"
                 }
             }
         }
@@ -35,20 +54,6 @@ pipeline {
             }
         }
 
-        stage('Deploy RC') {
-            steps {
-                 script {
-                     def containerName = 'dev_rc'
-                     def existingContainerId = sh(script: "docker ps -a -q -f name=${containerName}", returnStatus: true)
-                     if (existingContainerId.toString().length()>0) {
-                         // Xóa container cũ nếu tồn tại
-                         sh "docker rm -f ${containerName}"
-                     }
-                     // Tạo container mới
-                     sh 'docker run -itd --name dev_rc -p 3002:3000 ntquan87/nodejs-app-ci-cd:latest'
-                 }
-             }
-         }
     }
 
     // post {
