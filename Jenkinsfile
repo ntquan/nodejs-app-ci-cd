@@ -30,7 +30,7 @@ pipeline {
             steps {
                 script {
                     // Build the Docker image with the commit hash as a tag
-                    sh "docker build -t ${IMAGE_NAME}:0.01 ."
+                    sh "docker build -t ${IMAGE_NAME}:${LATEST_COMMIT} ."
                 }
             }
         }
@@ -38,25 +38,11 @@ pipeline {
         stage('Push Docker Image') {
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                        sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
-                        // Push the image to Docker registry (optional)
-                        sh "docker push ${IMAGE_NAME}:0.01"
-                    }
+                    // Push the image to Docker registry (optional)
+                    sh "docker push ${IMAGE_NAME}:${LATEST_COMMIT}"
                 }
             }
         }
-
-        stage('Build and Push Docker Image') {
-            steps {
-                    // Authenticate with the Docker registry
-                    withDockerRegistry(credentialsId: 'docker-hub', url: 'https://index.docker.io/v1/') {
-                      sh 'docker build -t ntquan87/nodejs-app-ci-cd:latest .'
-                      sh 'docker push ntquan87/nodejs-app-ci-cd:latest'
-                    }
-            }
-        }
-
     }
 
     // post {
